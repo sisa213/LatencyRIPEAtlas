@@ -16,13 +16,16 @@ try {
         database : 'anchor_measurements',
     })   
 
-    promisePool = pool.promise();
+    promisePool = pool.promise()
 
 } catch (err){
     console.log(err)
 }
 
 
+/*
+getNpgs: returns number of pages of list of objects in RIPE Atlas API
+*/
 const getNpgs = async (url) => {
 
     const res = await axios.get(url)
@@ -32,6 +35,9 @@ const getNpgs = async (url) => {
 }
 
 
+/*
+getAnchorMeasurements: populates anchor_measurements table with data fetched from RIPE Atlas API
+*/
 const getAnchorMeasurements = async (npg) => {
     console.log("Sono in getAnchorMeasurements "+"\n fetching in corso ...")
     for (let j=1; j<=npg; j++) {
@@ -59,6 +65,9 @@ const getAnchorMeasurements = async (npg) => {
 }
 
 
+/*
+getAnchors: populates anchors table with data fetched from RIPE Atlas API
+*/
 const getAnchors = async (npg) => {
     console.log("Sono in getAnchors \n fetching in corso ...")
     for (let k=1; k<=npg; k++) {
@@ -72,12 +81,12 @@ const getAnchors = async (npg) => {
             let id1 = anchor.probe
             let fqdn = anchor.fqdn
             let country = anchor.country
-            let longitude = anchor.geometry.coordinates[0];
-            let latitude = anchor.geometry.coordinates[1];
+            let longitude = anchor.geometry.coordinates[0]
+            let latitude = anchor.geometry.coordinates[1]
 
-            const promisePool = pool.promise();
+            const promisePool = pool.promise()
             // query database using promises
-            await promisePool.execute(sql1, [id0, id1, fqdn, country, longitude, latitude]);
+            await promisePool.execute(sql1, [id0, id1, fqdn, country, longitude, latitude])
         }   
     }
 }
@@ -85,13 +94,13 @@ const getAnchors = async (npg) => {
 
 async function main(){
     
-    const pgs0 = await getNpgs("https://atlas.ripe.net/api/v2/probes/?status=1");
-    await getAnchorMeasurements(pgs0);
-    const pgs1 = await getNpgs("https://atlas.ripe.net/api/v2/anchor-measurements/");
-    await getAnchors(pgs1);
-    await promisePool.end();
-    console.log("Fetching terminato.");
+    const pgs0 = await getNpgs("https://atlas.ripe.net/api/v2/anchor-measurements/")
+    await getAnchorMeasurements(pgs0)
+    const pgs1 = await getNpgs("https://atlas.ripe.net/api/v2/anchors/")
+    await getAnchors(pgs1)
+    await promisePool.end()
+    console.log("Fetching terminato.")
 }
 
 
-main();
+main()
