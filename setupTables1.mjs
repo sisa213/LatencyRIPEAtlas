@@ -55,7 +55,7 @@ const getAnchorMeasurements = async (npg) => {
             let is_mesh = anchor_measurement.is_mesh
             let country = anchor_measurement.target.country
             let type = anchor_measurement.type
-            let url = anchor_measurement.measurement+"results/"
+            let url = anchor_measurement.measurement
 
             const promisePool = pool.promise()
             // query database using promises
