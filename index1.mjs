@@ -1,5 +1,4 @@
 import express from 'express'
-import fetch from 'node-fetch'
 import mysql from 'mysql2'
 import { performance } from 'perf_hooks'
 import ejs from 'ejs'
@@ -93,9 +92,9 @@ const fetchData = async () => {
         let id_measurement = id_measurement0.slice(0,-1)
         console.log("id_measurement: "+id_measurement)
 
-        let m_response = await fetch("https://atlas.ripe.net/api/v2/measurements/?id="+id_measurement+"&optional_fields=probes")
+        let m_response = await axios.get("https://atlas.ripe.net/api/v2/measurements/?id="+id_measurement+"&optional_fields=probes")
 
-        let m0 = await m_response.json()
+        let m0 = await m_response.data
 
         console.log("data: "+m0)
         let measurement = m0.results[0]
@@ -187,7 +186,6 @@ function compressDataset(ar){
             return sum / arr.length;
         };
 
-
         let new_ar = [];
 
         while (b_sindex<=num_results){
@@ -209,14 +207,14 @@ function compressDataset(ar){
             console.log("obj.timestamp: "+obj.timestamp)
             obj.RTT = getAverage(sub_ar.map(p=>p.RTT))
 
-            //get number of couples source-probe participating
-            const probes_set = new Set()
+            //get number of targets involved
+            const anchors_set = new Set()
             sub_ar.forEach(element => {
-                probes_set.add(element.targets)
+                anchors_set.add(element.targets)
             });
-            console.log("number of targets for sub_ar: "+probes_set);
+            console.log("number of targets for sub_ar: "+anchors_set);
 
-            obj.probes = probes_set.size
+            obj.anchors = anchors_set.size
 
             new_ar.push(obj);
 
@@ -229,7 +227,7 @@ function compressDataset(ar){
         return new_ar
     }
     else{
-        ar.map(elem=>{elem.probes=1})
+        ar.map(elem=>{elem.anchors=1})
         return ar
     }
     
@@ -259,7 +257,7 @@ app.post('/', async function(req,res){
         ['en'], {type: 'region'}
       );
 
-    res.render('graph', {data: JSON.stringify(dataset),
+    res.render('graph1', {data: JSON.stringify(dataset),
                          from: regionNames.of(req.body.from_country),
                          to: regionNames.of(req.body.to_country)});
 
