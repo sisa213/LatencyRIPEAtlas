@@ -180,7 +180,6 @@ function compressDataset(ar){
             }
             
             let sub_ar = sub_indexes.map(i=> ar[i])     // creating new sub array
-            console.log("sub_ar: "+sub_ar)
 
             // creatig new object to replace sub array
             let obj = new Object()
@@ -192,10 +191,10 @@ function compressDataset(ar){
             sub_ar.forEach(element => {
                 pairs_set.add(element.pair)     // values already present in the set won't be added
             })
-            console.log("number of pairs for sub_ar: "+pairs_set)
 
             obj.pairs = pairs_set.size  // number of different pairs found in sub arry
 
+            console.log(obj)
             new_ar.push(obj)
 
             // update indexes for new sub array
