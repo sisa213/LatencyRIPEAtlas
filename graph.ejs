@@ -29,6 +29,7 @@
 				.attr("transform",
 					"translate(" + margin.left + "," + margin.top + ")");
 
+			// convert timestamps in milliseconds
 			dataset.forEach(function(d) { d.timestamp = new Date(d.timestamp * 1000); });
 			
 			var x = d3.scaleTime()
@@ -38,9 +39,9 @@
 				.attr("transform", "translate(0," + height + ")")
 				.call(d3.axisBottom(x));
 
-				// Add Y axis
+			// Add Y axis
 			var y = d3.scaleLinear()
-				.domain([0, d3.max(dataset.map(function(d) { return which==0?(+d.RTT):(+d.probes); }))+1])
+				.domain([0, d3.max(dataset.map(function(d) { return which==0?(+d.RTT):(+d.pairs); }))+1])
 				.range([ height, 0 ]);
 			svg.append("g")
 				.call(d3.axisLeft(y));
@@ -53,13 +54,15 @@
 				.attr("stroke-width", 1.5)
 				.attr("d", d3.line()
             					.x(function(d) { return x(d.timestamp) })
-            					.y(function(d) { return which==0?y(+d.RTT):y(+d.probes) })
+            					.y(function(d) { return which==0?y(+d.RTT):y(+d.pairs) })
         		)
 			
 		}		
 					
 		console.log(<%-data%>)
+		// create line chart for RTT
 		getGraph('myDiv0', <%-data%>, 0);
+		// create line chart for number of pairs
 		getGraph('myDiv1', <%-data%>, 1)
 
 	</script>
