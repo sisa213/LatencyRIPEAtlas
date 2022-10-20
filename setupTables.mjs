@@ -15,7 +15,6 @@ try {   // creating pool connection to database
         password : '',
         database : 'probes&anchors',
     })
-
 } catch (err){
     console.log(err)
 }
