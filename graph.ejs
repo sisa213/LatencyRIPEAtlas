@@ -17,7 +17,7 @@
 			// set the dimensions and margins of the graph
 			var margin = {top: 10, right: 30, bottom: 30, left: 60},
 			width = 900 - margin.left - margin.right,
-			height = 300 - margin.top - margin.bottom;
+			height = 300 - margin.top - margin.bottom
 
 			// append the svg object to the body of the page
 			var svg = d3.select(document.getElementById(where))
@@ -26,24 +26,24 @@
 				.attr("height", height + margin.top + margin.bottom)
 			.append("g")
 				.attr("transform",
-					"translate(" + margin.left + "," + margin.top + ")");
+					"translate(" + margin.left + "," + margin.top + ")")
 
 			// convert timestamps in milliseconds
-			dataset.forEach(function(d) { d.timestamp = new Date(d.timestamp * 1000); });
+			dataset.forEach(function(d) { d.timestamp = new Date(d.timestamp * 1000) })
 			
 			var x = d3.scaleTime()
-				.domain(d3.extent(dataset.map(function(d) { return d.timestamp; })))
-				.range([ 0, width ]);
+				.domain(d3.extent(dataset.map(function(d) { return d.timestamp })))
+				.range([ 0, width ])
 			svg.append("g")
 				.attr("transform", "translate(0," + height + ")")
-				.call(d3.axisBottom(x));
+				.call(d3.axisBottom(x))
 
 			// Add Y axis
 			var y = d3.scaleLinear()
-				.domain([0, d3.max(dataset.map(function(d) { return which==0?(+d.RTT):(+d.pairs); }))+1])
-				.range([ height, 0 ]);
+				.domain([0, d3.max(dataset.map(function(d) { return which==0?(+d.RTT):(+d.pairs) }))+1])
+				.range([ height, 0 ])
 			svg.append("g")
-				.call(d3.axisLeft(y));
+				.call(d3.axisLeft(y))
 
 			// Add the line
 			svg.append("path")
@@ -60,7 +60,7 @@
 					
 		console.log(<%-data%>)
 		// create line chart for RTT
-		getGraph('myDiv0', <%-data%>, 0);
+		getGraph('myDiv0', <%-data%>, 0)
 		// create line chart for number of pairs
 		getGraph('myDiv1', <%-data%>, 1)
 

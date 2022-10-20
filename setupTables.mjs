@@ -81,21 +81,21 @@ const getAnchors = async (npg) => {
 
             const promisePool = pool.promise()
             // query database using promises
-            await promisePool.execute(sql1, [id, fqdn, country, longitude, latitude]);
+            await promisePool.execute(sql1, [id, fqdn, country, longitude, latitude])
         }
     }
 }
 
 async function main(){
     
-    const pgs1 = await getNpgs("https://atlas.ripe.net/api/v2/probes/?status=1");
+    const pgs1 = await getNpgs("https://atlas.ripe.net/api/v2/probes/?status=1")
     await getProbes(pgs1, 1)    // storing connected probes (status=1)
-    const pgs2 = await getNpgs("https://atlas.ripe.net/api/v2/probes/?status=2");
+    const pgs2 = await getNpgs("https://atlas.ripe.net/api/v2/probes/?status=2")
     await getProbes(pgs2, 2)   // storing disconnected probes (status=2)
-    const pgs3 = await getNpgs("https://atlas.ripe.net/api/v2/anchors");
+    const pgs3 = await getNpgs("https://atlas.ripe.net/api/v2/anchors")
     await getAnchors(pgs3)     // storing anchors
     await promisePool.end()    // close pool connection
     console.log("Fetching terminated.")
 }
 
-main();
+main()
