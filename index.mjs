@@ -206,7 +206,7 @@ function compressDataset(ar){
         }
         return new_ar
     }
-    else{   // if there are less results than double half_hours_span only parse_value will be changed
+    else{   // if there are less results than double half_hours_span only pairs property will change
 
         // only pairs property must be modified
         ar.map(elem=>{
