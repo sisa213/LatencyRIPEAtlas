@@ -2,85 +2,88 @@ import express from 'express'
 import mysql from 'mysql2'
 import { performance } from 'perf_hooks'
 import ejs from 'ejs'
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { fileURLToPath } from 'url'
+import { dirname } from 'path'
 import axios from 'axios'
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const port = process.env.PORT || 8080;
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+const port = process.env.PORT || 8080
 
-let sources = [];    // probes and anchors in from_country
-let targets = [];    // anchors in to_country
-let values = [];     // results collected
-const time_span = 7;     //number of days considered
-let num_results = 0;    //number of results collected
+let sources = []        // probes and anchors in from_country
+let targets = []        // anchors in to_country
+let values = []         // results collected
+const time_span = 7     //number of days considered
+let num_results = 0     //number of results collected
 
-const app = express();
-app.engine('.html', ejs.__express);
-app.use(express.json());
-app.use(express.static(__dirname));
-app.use(express.urlencoded( {extended: true} ));
-app.set('views', __dirname);
-app.set('view engine', 'ejs');
+const app = express()
+app.engine('.html', ejs.__express)
+app.use(express.json())
+app.use(express.static(__dirname))
+app.use(express.urlencoded( {extended: true} ))
+app.set('views', __dirname)
+app.set('view engine', 'ejs')
 
+/**
+ * Routing for rendering UI 
+ */ 
 app.get('', (req, res) => {
-    res.send('index.html');
+    res.send('index.html')
 })
 
-/*
-fillArrays: initializes sources and targets with data from probes&anchors database
-*/
+/**
+ * fillArrays: initializes sources and targets with data from probes&anchors database
+ */
 async function fillArrays (from, to) {
+    console.log("I'm inside fillArrays")
 
     try {
+        // establishing pool connection
         var pool = mysql.createPool({
-            connectionLimit : 10,
+            connectionLimit : 5,
             host     : 'localhost',
             user     : 'root',
             password : '',
             database : 'probes&anchors',
-        });    
+        })
 
-        console.log("sono in fillArrays")
-        const sql0 = 'SELECT `id` FROM `anchors` WHERE `country`= ?';
-        const sql1 = 'SELECT `fqdn` FROM `anchors` WHERE `country`= ?';
+        const sql0 = 'SELECT `id` FROM `anchors` WHERE `country`= ?'
+        const sql1 = 'SELECT `fqdn` FROM `anchors` WHERE `country`= ?'
 
-        const promisePool = pool.promise();
+        const promisePool = pool.promise()
         // query database using promises
-        const results1 = await promisePool.execute(sql0, [from]);
-        const results2 = await promisePool.execute(sql1, [to]);
-        await promisePool.end();
+        const results1 = await promisePool.execute(sql0, [from])
+        const results2 = await promisePool.execute(sql1, [to])
+        await promisePool.end()
 
-        //fetch data to array
-        sources = results1[0].map(a => a.id);
-        targets = results2[0].map(a => a.fqdn);
+        //store results in arrays
+        sources = results1[0].map(a => a.id)
+        targets = results2[0].map(a => a.fqdn)
 
     } catch (err){
         console.log(err)
     }
 }
 
-/*
-getTimestampInSeconds: if now is false returns the UNIX timestamp of exactly seven days ago otherwise current timestamp
-*/
+/**
+ * getTimestampInSeconds: if now is false returns the UNIX timestamp of exactly seven days ago otherwise current timestamp
+ */
 function getTimestampInSeconds (now) {
 
     const date = new Date();
-    date.setDate(date.getDate() - (now==true?0:time_span));
-    const res = Math.floor(date / 1000);
-    console.log(res);
-    return res;
+    date.setDate(date.getDate() - (now==true?0:time_span))
+    const res = Math.floor(date / 1000)
+    return res
 }
 
-/*
-fetchData: fetches and stores in values (array) ping measurement results of interest
-*/
+/**
+ * fetchData: fetches and stores ping measurement results
+ */
 const fetchData = async () => {
-    console.log("Sono dentro fetchData e qui targets deve essere pronto")
+    console.log("I'm inside fecthData")
     let start_time = getTimestampInSeconds(false)
-    let anchor_source=0
 
+    // for every anchor target -----------------------------------HERE--------------------------------
     for ( let t of targets ){
 
         let new_page = 'https://atlas.ripe.net/api/v2/measurements/ping/?status=2&target='+t+'&description__contains=anchoring&optional_fields=probes'
