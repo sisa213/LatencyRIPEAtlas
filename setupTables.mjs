@@ -39,24 +39,29 @@ const getProbes = async (npg, stat) => {
     console.log("I'm inside getProbes "+stat+"\n fetching ongoing ...")
 
     for (let i=1; i<=npg; i++) {
-        let URLi = "https://atlas.ripe.net/api/v2/probes/?page="+i+"&status="+stat
-        const res = await axios.get(URLi)   //fetching probes with status equal to 'stat'
-        const data = res.data
 
-        for (let probe of data.results){
+        try {
+            let URLi = "https://atlas.ripe.net/api/v2/probes/?page="+i+"&status="+stat
+            const res = await axios.get(URLi)   //fetching probes with status equal to 'stat'
+            const data = res.data
 
-            // storing only probes with defined location
-            if (probe.country_code!=null && probe.geometry!=null){
+            for (let probe of data.results){
 
-                let id0 = probe.id     // probe id
-                let country = probe.country_code   // probe country
-                let longitude = probe.geometry.coordinates[0]  // probe position: longitude
-                let latitude = probe.geometry.coordinates[1]   // probe position: latitude
+                // storing only probes with defined location
+                if (probe.country_code!=null && probe.geometry!=null){
 
-                const promisePool = pool.promise()
-                // query database using promises
-                await promisePool.execute(sql0, [id0, country, longitude, latitude])
+                    let id0 = probe.id     // probe id
+                    let country = probe.country_code   // probe country
+                    let longitude = probe.geometry.coordinates[0]  // probe position: longitude
+                    let latitude = probe.geometry.coordinates[1]   // probe position: latitude
+
+                    const promisePool = pool.promise()
+                    // query database using promises
+                    await promisePool.execute(sql0, [id0, country, longitude, latitude])
+                }
             }
+        } catch(e) {
+            continue
         }
     }
 }
@@ -67,21 +72,26 @@ const getProbes = async (npg, stat) => {
 const getAnchors = async (npg) => {
     console.log("I'm inside getAnchors \n fetching ongoing ...")
     for (let i=1; i<=npg; i++) {
-        let URLi = "https://atlas.ripe.net/api/v2/anchors/?page="+i
-        const res = await axios.get(URLi)   // fetching anchors
-        const data = res.data
 
-        for (let anchor of data.results){
+        try {
+            let URLi = "https://atlas.ripe.net/api/v2/anchors/?page="+i
+            const res = await axios.get(URLi)   // fetching anchors
+            const data = res.data
 
-            let id = anchor.probe  // anchor id
-            let fqdn = anchor.fqdn  // anchor fqdn
-            let country = anchor.country    // anchor country
-            let longitude = anchor.geometry.coordinates[0]  // anchor position: longitude
-            let latitude = anchor.geometry.coordinates[1]   // anchor position: latitude
+            for (let anchor of data.results){
 
-            const promisePool = pool.promise()
-            // query database using promises
-            await promisePool.execute(sql1, [id, fqdn, country, longitude, latitude])
+                let id = anchor.probe  // anchor id
+                let fqdn = anchor.fqdn  // anchor fqdn
+                let country = anchor.country    // anchor country
+                let longitude = anchor.geometry.coordinates[0]  // anchor position: longitude
+                let latitude = anchor.geometry.coordinates[1]   // anchor position: latitude
+
+                const promisePool = pool.promise()
+                // query database using promises
+                await promisePool.execute(sql1, [id, fqdn, country, longitude, latitude])
+            }
+        } catch(e) {
+            continue
         }
     }
 }
