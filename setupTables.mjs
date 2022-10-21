@@ -5,16 +5,17 @@ import axios from 'axios'
 const sql0 = "INSERT INTO probes (id, country, longitude, latitude) VALUES (?,?,?,?)"
 const sql1 = "INSERT INTO anchors (id, fqdn, country, longitude, latitude) VALUES (?,?,?,?,?)"
 const PAGE_SIZE = 100      // number of ojects listed in a single page
-let pool     // global pool connection for queries
+let promisePool     // global pool connection for queries
 
 try {   // creating pool connection to database
-    pool = mysql.createPool({
+    const pool = mysql.createPool({
         connectionLimit : 5,
         host     : 'localhost',
         user     : 'root',
         password : '',
         database : 'probes&anchors',
     })
+    promisePool = pool.promise()
 } catch (err){
     console.log(err)
 }
@@ -27,7 +28,7 @@ const getNpgs = async (url) => {
     const res = await axios.get(url)
     const data = await res.data
 
-    console.log("number of objects: "+data.count)
+    console.log("\nnumber of objects: "+data.count)
     return Math.ceil(data.count/PAGE_SIZE)
 }
 
@@ -55,7 +56,6 @@ const getProbes = async (npg, stat) => {
                     let longitude = probe.geometry.coordinates[0]  // probe position: longitude
                     let latitude = probe.geometry.coordinates[1]   // probe position: latitude
 
-                    const promisePool = pool.promise()
                     // query database using promises
                     await promisePool.execute(sql0, [id0, country, longitude, latitude])
                 }
@@ -86,7 +86,6 @@ const getAnchors = async (npg) => {
                 let longitude = anchor.geometry.coordinates[0]  // anchor position: longitude
                 let latitude = anchor.geometry.coordinates[1]   // anchor position: latitude
 
-                const promisePool = pool.promise()
                 // query database using promises
                 await promisePool.execute(sql1, [id, fqdn, country, longitude, latitude])
             }
@@ -105,7 +104,7 @@ async function main(){
     const pgs3 = await getNpgs("https://atlas.ripe.net/api/v2/anchors")
     await getAnchors(pgs3)     // storing anchors
     await promisePool.end()    // close pool connection
-    console.log("Fetching terminated.")
+    console.log("\nFetching terminated.")
 }
 
 main()
