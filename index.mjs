@@ -49,7 +49,7 @@ async function fillArrays (from, to) {
             database : 'probes&anchors',
         })
 
-        const sql0 = 'SELECT `id` FROM `anchors` WHERE `country`= ?'
+        const sql0 = 'SELECT `id` FROM `probes` WHERE `country`= ?'
         const sql1 = 'SELECT `fqdn` FROM `anchors` WHERE `country`= ?'
 
         const promisePool = pool.promise()
